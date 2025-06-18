@@ -293,12 +293,12 @@ static void zmk_mwave_indicators_num_blink_handler(struct k_timer *timer) {
 K_TIMER_DEFINE(num_blink_timer, zmk_mwave_indicators_num_blink_handler, NULL);
 
 static void zmk_mwave_indicators_layer(struct k_work *work) {
-
+#if 0
     if(!num && (layer!=0))
         k_timer_start(&num_blink_timer, K_MSEC(750), K_MSEC(750));
-    else   
+    else
         k_timer_stop(&num_blink_timer);
-        
+#endif
     pixels[IS_ENABLED(CONFIG_ZMK_STP_INDICATORS_SWITCH_LEDS)?0:1] = LAYER_COLORS[layer];
     LOG_DBG("Setting LED:%d", IS_ENABLED(CONFIG_ZMK_STP_INDICATORS_SWITCH_LEDS)?0:1);
     int err = led_strip_update_rgb(led_strip, pixels, STRIP_NUM_PIXELS);
@@ -313,7 +313,7 @@ static void zmk_mwave_indicators_caps(struct k_work *work) {
         err = led_on(caps_led, 0);
     else
         err = led_off(caps_led, 0);
-    
+
     if (err < 0) {
         LOG_ERR("Failed to update the led (%d)", err);
     }
@@ -379,9 +379,9 @@ static void zmk_mwave_indicators_battery_blink_handler(struct k_timer *timer) {
 K_TIMER_DEFINE(battery_blink_timer, zmk_mwave_indicators_battery_blink_handler, NULL);
 
 static void zmk_mwave_indicators_battery_timer_handler(struct k_timer *timer) {
-//do some battery stuf here  
+//do some battery stuf here
 battery = false;
-k_timer_stop(&battery_blink_timer); 
+k_timer_stop(&battery_blink_timer);
 k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &bluetooth_ind_work);
             k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &layer_ind_work);
 }
@@ -576,7 +576,7 @@ static int mwave_indicators_event_listener(const zmk_event_t *eh) {
         LOG_DBG("Battery event");
         if(zmk_battery_state_of_charge() < CONFIG_ZMK_STP_INDICATORS_BATTERY_THRESHOLD) {
             LOG_DBG("LOW BATTERY WARNING");
-            battery=true; 
+            battery=true;
             k_timer_stop(&slow_blink_timer);
             k_timer_stop(&fast_blink_timer);
             k_timer_stop(&connected_timeout_timer);
